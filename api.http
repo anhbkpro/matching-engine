@@ -1,0 +1,557 @@
+### ============================================================================
+### Matching Engine REST API Client
+### Use with VS Code REST Client extension or IntelliJ HTTP Client
+### ============================================================================
+
+### Variables
+@baseUrl = http://localhost:8080
+@contentType = application/json
+
+### ============================================================================
+### HEALTH & STATUS ENDPOINTS
+### ============================================================================
+
+### Health Check
+GET {{baseUrl}}/health
+Accept: application/json
+
+###
+
+### Readiness Check
+GET {{baseUrl}}/ready
+Accept: application/json
+
+###
+
+### Metrics (Prometheus format)
+GET {{baseUrl}}/metrics
+Accept: text/plain
+
+###
+
+### ============================================================================
+### ORDER BOOK ENDPOINTS
+### ============================================================================
+
+### Get Order Book for BTC-USD
+GET {{baseUrl}}/orderbook/BTC-USD
+Accept: application/json
+
+###
+
+### Get Order Book for ETH-USD
+GET {{baseUrl}}/orderbook/ETH-USD
+Accept: application/json
+
+###
+
+### Get Order Book for SOL-USD
+GET {{baseUrl}}/orderbook/SOL-USD
+Accept: application/json
+
+###
+
+### Get Order Book for AVAX-USD
+GET {{baseUrl}}/orderbook/AVAX-USD
+Accept: application/json
+
+###
+
+### ============================================================================
+### ORDER SUBMISSION ENDPOINTS
+### ============================================================================
+
+### Submit Buy Limit Order - BTC
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "user-001",
+  "symbol": "BTC-USD",
+  "side": "BUY",
+  "type": "LIMIT",
+  "price": 50000.00,
+  "quantity": 1.5
+}
+
+###
+
+### Submit Sell Limit Order - BTC
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "user-002",
+  "symbol": "BTC-USD",
+  "side": "SELL",
+  "type": "LIMIT",
+  "price": 49000.00,
+  "quantity": 1.0
+}
+
+###
+
+### Submit Market Buy Order - BTC
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "user-003",
+  "symbol": "BTC-USD",
+  "side": "BUY",
+  "type": "MARKET",
+  "quantity": 0.5
+}
+
+###
+
+### Submit Market Sell Order - BTC
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "user-004",
+  "symbol": "BTC-USD",
+  "side": "SELL",
+  "type": "MARKET",
+  "quantity": 0.25
+}
+
+###
+
+### Submit Buy Order - ETH
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "user-005",
+  "symbol": "ETH-USD",
+  "side": "BUY",
+  "type": "LIMIT",
+  "price": 3000.00,
+  "quantity": 5.0
+}
+
+###
+
+### Submit Sell Order - ETH
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "user-006",
+  "symbol": "ETH-USD",
+  "side": "SELL",
+  "type": "LIMIT",
+  "price": 3050.00,
+  "quantity": 3.0
+}
+
+###
+
+### Submit Buy Order - SOL
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "user-007",
+  "symbol": "SOL-USD",
+  "side": "BUY",
+  "type": "LIMIT",
+  "price": 100.00,
+  "quantity": 50.0
+}
+
+###
+
+### Submit Sell Order - SOL
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "user-008",
+  "symbol": "SOL-USD",
+  "side": "SELL",
+  "type": "LIMIT",
+  "price": 102.00,
+  "quantity": 30.0
+}
+
+###
+
+### ============================================================================
+### ORDER CANCELLATION ENDPOINTS
+### ============================================================================
+
+### Cancel Order (replace {order_id} with actual order ID)
+POST {{baseUrl}}/orders/{order_id}/cancel
+Content-Type: {{contentType}}
+
+###
+
+### Cancel Specific Order Example
+# @name cancelOrder
+POST {{baseUrl}}/orders/order-123/cancel
+Content-Type: {{contentType}}
+
+###
+
+### ============================================================================
+### TRADES ENDPOINTS
+### ============================================================================
+
+### Get Recent Trades - BTC-USD
+GET {{baseUrl}}/trades/BTC-USD?limit=10
+Accept: application/json
+
+###
+
+### Get Recent Trades - BTC-USD (100 trades)
+GET {{baseUrl}}/trades/BTC-USD?limit=100
+Accept: application/json
+
+###
+
+### Get Recent Trades - ETH-USD
+GET {{baseUrl}}/trades/ETH-USD?limit=20
+Accept: application/json
+
+###
+
+### Get Recent Trades - SOL-USD
+GET {{baseUrl}}/trades/SOL-USD?limit=50
+Accept: application/json
+
+###
+
+### Get Recent Trades - AVAX-USD
+GET {{baseUrl}}/trades/AVAX-USD?limit=10
+Accept: application/json
+
+###
+
+### ============================================================================
+### TEST SCENARIOS
+### ============================================================================
+
+### Scenario 1: Create Matching Orders (should execute immediately)
+### Step 1: Submit Sell Order
+# @name sellOrder1
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "seller-1",
+  "symbol": "BTC-USD",
+  "side": "SELL",
+  "type": "LIMIT",
+  "price": 45000.00,
+  "quantity": 1.0
+}
+
+###
+
+### Step 2: Submit Matching Buy Order (should match above)
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "buyer-1",
+  "symbol": "BTC-USD",
+  "side": "BUY",
+  "type": "LIMIT",
+  "price": 45000.00,
+  "quantity": 1.0
+}
+
+###
+
+### Step 3: Check Trades (should show the match)
+GET {{baseUrl}}/trades/BTC-USD?limit=5
+Accept: application/json
+
+###
+
+### Scenario 2: Partial Fill
+### Step 1: Large Sell Order
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "seller-2",
+  "symbol": "ETH-USD",
+  "side": "SELL",
+  "type": "LIMIT",
+  "price": 3000.00,
+  "quantity": 10.0
+}
+
+###
+
+### Step 2: Smaller Buy Order (partial fill)
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "buyer-2",
+  "symbol": "ETH-USD",
+  "side": "BUY",
+  "type": "LIMIT",
+  "price": 3000.00,
+  "quantity": 3.0
+}
+
+###
+
+### Step 3: Check Order Book (should still have 7 ETH for sale)
+GET {{baseUrl}}/orderbook/ETH-USD
+Accept: application/json
+
+###
+
+### Scenario 3: Market Order Against Multiple Levels
+### Step 1: Create multiple sell orders at different prices
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "seller-3a",
+  "symbol": "SOL-USD",
+  "side": "SELL",
+  "type": "LIMIT",
+  "price": 100.00,
+  "quantity": 10.0
+}
+
+###
+
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "seller-3b",
+  "symbol": "SOL-USD",
+  "side": "SELL",
+  "type": "LIMIT",
+  "price": 101.00,
+  "quantity": 10.0
+}
+
+###
+
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "seller-3c",
+  "symbol": "SOL-USD",
+  "side": "SELL",
+  "type": "LIMIT",
+  "price": 102.00,
+  "quantity": 10.0
+}
+
+###
+
+### Step 2: Market buy order (should match across multiple price levels)
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "buyer-3",
+  "symbol": "SOL-USD",
+  "side": "BUY",
+  "type": "MARKET",
+  "quantity": 25.0
+}
+
+###
+
+### Step 3: Check trades (should show 3 trades at different prices)
+GET {{baseUrl}}/trades/SOL-USD?limit=10
+Accept: application/json
+
+###
+
+### Scenario 4: Price Priority Test
+### Step 1: Create sell orders at different prices
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "seller-4a",
+  "symbol": "BTC-USD",
+  "side": "SELL",
+  "type": "LIMIT",
+  "price": 50200.00,
+  "quantity": 1.0
+}
+
+###
+
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "seller-4b",
+  "symbol": "BTC-USD",
+  "side": "SELL",
+  "type": "LIMIT",
+  "price": 50100.00,
+  "quantity": 1.0
+}
+
+###
+
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "seller-4c",
+  "symbol": "BTC-USD",
+  "side": "SELL",
+  "type": "LIMIT",
+  "price": 50000.00,
+  "quantity": 1.0
+}
+
+###
+
+### Step 2: Buy order at high price (should match lowest sell first)
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "buyer-4",
+  "symbol": "BTC-USD",
+  "side": "BUY",
+  "type": "LIMIT",
+  "price": 50300.00,
+  "quantity": 1.0
+}
+
+###
+
+### Step 3: Check last trade (should be at 50000.00 - best price)
+GET {{baseUrl}}/trades/BTC-USD?limit=1
+Accept: application/json
+
+###
+
+### ============================================================================
+### STRESS TEST ORDERS
+### ============================================================================
+
+### Create 10 Buy Orders - BTC
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "stress-buyer-1",
+  "symbol": "BTC-USD",
+  "side": "BUY",
+  "type": "LIMIT",
+  "price": 49000.00,
+  "quantity": 0.1
+}
+
+###
+
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "stress-buyer-2",
+  "symbol": "BTC-USD",
+  "side": "BUY",
+  "type": "LIMIT",
+  "price": 49100.00,
+  "quantity": 0.2
+}
+
+###
+
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "stress-buyer-3",
+  "symbol": "BTC-USD",
+  "side": "BUY",
+  "type": "LIMIT",
+  "price": 49200.00,
+  "quantity": 0.3
+}
+
+###
+
+### Create 10 Sell Orders - BTC
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "stress-seller-1",
+  "symbol": "BTC-USD",
+  "side": "SELL",
+  "type": "LIMIT",
+  "price": 51000.00,
+  "quantity": 0.1
+}
+
+###
+
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "stress-seller-2",
+  "symbol": "BTC-USD",
+  "side": "SELL",
+  "type": "LIMIT",
+  "price": 50900.00,
+  "quantity": 0.2
+}
+
+###
+
+POST {{baseUrl}}/orders
+Content-Type: {{contentType}}
+
+{
+  "user_id": "stress-seller-3",
+  "symbol": "BTC-USD",
+  "side": "SELL",
+  "type": "LIMIT",
+  "price": 50800.00,
+  "quantity": 0.3
+}
+
+###
+
+### Check Final Order Book State
+GET {{baseUrl}}/orderbook/BTC-USD
+Accept: application/json
+
+###
+
+### ============================================================================
+### ADMIN / DEBUG ENDPOINTS (if implemented)
+### ============================================================================
+
+### Get All Active Orders
+GET {{baseUrl}}/admin/orders/active
+Accept: application/json
+
+###
+
+### Get Order Statistics
+GET {{baseUrl}}/admin/stats
+Accept: application/json
+
+###
+
+### Rebuild Order Book (admin operation)
+POST {{baseUrl}}/admin/rebuild
+Content-Type: {{contentType}}
+
+###
