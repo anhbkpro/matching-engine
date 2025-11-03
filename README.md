@@ -488,6 +488,4 @@ MIT License - see LICENSE file for details
 
 ## 📧 Support
 
-- GitHub Issues: [github.com/yourorg/matching-engine/issues](https://github.com/yourorg/matching-engine/issues)
-- Documentation: [docs.yourorg.com](https://docs.yourorg.com)
-- Email: support@yourorg.com
+- GitHub Issues: [github.com/anhbkpro/matching-engine/issues](https://github.com/anhbkpro/matching-engine/issues)
